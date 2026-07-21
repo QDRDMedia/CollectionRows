@@ -10,7 +10,7 @@ using MediaBrowser.Model.Serialization;
 namespace QDRD.Media.CollectionRows;
 
 /// <summary>
-/// The Collection Organizer plugin.
+/// The Collection Rows plugin.
 /// </summary>
 public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
@@ -26,7 +26,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     }
 
     /// <inheritdoc />
-    public override string Name => "Collection Organizer";
+    public override string Name => "Collection Rows";
 
     /// <inheritdoc />
     public override Guid Id => Guid.Parse("0d3f7c2f-58d8-4d13-8c4d-3b9cf84bdb3a");

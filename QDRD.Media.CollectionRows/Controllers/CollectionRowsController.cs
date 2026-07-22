@@ -5,7 +5,6 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Library;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QDRD.Media.CollectionRows.Models;
 using QDRD.Media.CollectionRows.Services;
@@ -23,6 +22,16 @@ public class CollectionRowsController : ControllerBase
     private readonly ILibraryManager _libraryManager;
     private readonly CollectionSectionGroupingService _groupingService;
 
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="CollectionRowsController"/> class.
+    /// </summary>
+    /// <param name="libraryManager">
+    /// Provides access to items in the Jellyfin library.
+    /// </param>
+    /// <param name="groupingService">
+    /// Groups collection items into configured rows.
+    /// </param>
     public CollectionRowsController(
         ILibraryManager libraryManager,
         CollectionSectionGroupingService groupingService)
@@ -31,6 +40,10 @@ public class CollectionRowsController : ControllerBase
         _groupingService = groupingService;
     }
 
+    /// <summary>
+    /// Confirms that the Collection Rows API is available.
+    /// </summary>
+    /// <returns>A message confirming that the API is running.</returns>
     [AllowAnonymous]
     [HttpGet("Status")]
     public ActionResult<string> GetStatus()
@@ -38,9 +51,19 @@ public class CollectionRowsController : ControllerBase
         return Ok("Collection Rows API is running.");
     }
 
+    /// <summary>
+    /// Gets the configured rows for a Jellyfin collection.
+    /// </summary>
+    /// <param name="collectionId">
+    /// The Jellyfin collection identifier.
+    /// </param>
+    /// <returns>
+    /// The collection and its grouped rows.
+    /// </returns>
     [AllowAnonymous]
     [HttpGet("{collectionId}")]
-    public ActionResult<CollectionRowsResponse> GetCollectionRows(Guid collectionId)
+    public ActionResult<CollectionRowsResponse> GetCollectionRows(
+        Guid collectionId)
     {
         BoxSet? collection =
             _libraryManager.GetItemById<BoxSet>(collectionId);
@@ -63,25 +86,22 @@ public class CollectionRowsController : ControllerBase
             items[item.Id] = tags;
         }
 
-        // Temporary configuration until the settings page exists.
-        List<CollectionSection> configuredSections =
-        [
-            new CollectionSection
-            {
-                Name = "Documentaries",
-                Order = 10,
-                Tag = "CollectionSection:Documentary"
-            },
-            new CollectionSection
-            {
-                Name = "Fan Films",
-                Order = 20,
-                Tag = "CollectionSection:Fan Film"
-            }
-        ];
+        IEnumerable<CollectionSection> configuredSections;
+
+        if (Plugin.Instance is null)
+        {
+            configuredSections = Array.Empty<CollectionSection>();
+        }
+        else
+        {
+            configuredSections =
+                Plugin.Instance.Configuration.Sections;
+        }
 
         var groups =
-            _groupingService.CreateGroups(items, configuredSections);
+            _groupingService.CreateGroups(
+                items,
+                configuredSections);
 
         CollectionRowsResponse response = new()
         {

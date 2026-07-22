@@ -11,7 +11,21 @@ namespace QDRD.Media.CollectionRows.Services;
 /// </summary>
 public class CollectionSectionGroupingService
 {
-    private readonly CollectionSectionMatcher _sectionMatcher = new();
+    private readonly CollectionSectionMatcher _sectionMatcher;
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="CollectionSectionGroupingService"/> class.
+    /// </summary>
+    /// <param name="sectionMatcher">
+    /// The service used to match item tags to configured sections.
+    /// </param>
+    public CollectionSectionGroupingService(
+        CollectionSectionMatcher sectionMatcher)
+    {
+        ArgumentNullException.ThrowIfNull(sectionMatcher);
+        _sectionMatcher = sectionMatcher;
+    }
 
     /// <summary>
     /// Groups collection items into the default Movies row and configured custom rows.
